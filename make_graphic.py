@@ -48,9 +48,9 @@ for r in range(sun_r + 220, sun_r, -4):
                fill=(255, 214, 140, max(a, 0)))
 img.paste(Image.alpha_composite(img.convert("RGBA"), glow).convert("RGB"), (0, 0))
 draw = ImageDraw.Draw(img, "RGBA")
-# sun disc
+# sun disc (slightly muted/warmer so it doesn't wash out the title)
 draw.ellipse([sun_cx - sun_r, sun_cy - sun_r, sun_cx + sun_r, sun_cy + sun_r],
-             fill=(255, 233, 170))
+             fill=(244, 178, 120))
 # retro sun stripes (cut bottom half with horizon-colored bars)
 for i, yb in enumerate(range(sun_cy + 30, sun_cy + sun_r, 26)):
     bh = 10 + i * 2
@@ -114,7 +114,7 @@ def saguaro(cx, base_y, h, color):
 saguaro(560, H - 40, 360, (10, 5, 14))
 
 # --- Text ---
-def center_text(y, text, fnt, fill, shadow=None, ls=0):
+def center_text(y, text, fnt, fill, shadow=None, ls=0, stroke=0, stroke_fill=None):
     if ls:
         # manual letter spacing
         widths = [draw.textlength(ch, font=fnt) for ch in text]
@@ -127,24 +127,30 @@ def center_text(y, text, fnt, fill, shadow=None, ls=0):
                 draw.text((cx2 + sx, y + sy), ch, font=fnt, fill=sc)
                 cx2 += w + ls
         for ch, w in zip(text, widths):
-            draw.text((x, y), ch, font=fnt, fill=fill)
+            draw.text((x, y), ch, font=fnt, fill=fill,
+                      stroke_width=stroke, stroke_fill=stroke_fill)
             x += w + ls
         return
     w = draw.textlength(text, font=fnt)
     x = (W - w) / 2
     if shadow:
         sx, sy, sc = shadow
-        draw.text((x + sx, y + sy), text, font=fnt, fill=sc)
-    draw.text((x, y), text, font=fnt, fill=fill)
+        draw.text((x + sx, y + sy), text, font=fnt, fill=sc,
+                  stroke_width=stroke, stroke_fill=sc)
+    draw.text((x, y), text, font=fnt, fill=fill,
+              stroke_width=stroke, stroke_fill=stroke_fill)
 
 # Kicker
 kick = font("NationalPark-Bold.ttf", 34)
 center_text(96, "EXPLORE • SIP • WANDER", kick, (255, 224, 170), ls=10)
 
-# Main title - two lines, big and bold
+# Main title - two lines, big and bold, with a heavy dark outline for contrast
 title = font("BigShoulders-Bold.ttf", 188)
-center_text(150, "TEQUILA", title, (255, 248, 235), shadow=(4, 5, (60, 18, 40, 180)))
-center_text(330, "ROAM", title, (255, 248, 235), shadow=(4, 5, (60, 18, 40, 180)))
+outline = (46, 16, 34)  # deep maroon-brown outline
+center_text(150, "TEQUILA", title, (255, 248, 235),
+            shadow=(5, 7, (20, 8, 18, 220)), stroke=9, stroke_fill=outline)
+center_text(330, "ROAM", title, (255, 248, 235),
+            shadow=(5, 7, (20, 8, 18, 220)), stroke=9, stroke_fill=outline)
 
 # Tagline (on its own translucent band for legibility)
 tag = font("NationalPark-Regular.ttf", 40)
